@@ -6,13 +6,13 @@ import { useCookies } from "react-cookie";
 
 function App() {
   const [screen, setScreen] = useState("login");
-  const [cookies, setCookie, removeCookie] = useCookies(["token", "id"]);
+  const [cookies] = useCookies(["token", "id"]);
 
   useEffect(() => {
     if (cookies.token && cookies.id) {
       setScreen("dashboard");
     }
-  });
+  }, [cookies]);
 
   const APIurl = process.end.API_URL;
 

@@ -4,8 +4,6 @@ import GlobalStyles from "@mui/joy/GlobalStyles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
-import Checkbox from "@mui/joy/Checkbox";
-import Divider from "@mui/joy/Divider";
 import FormControl from "@mui/joy/FormControl";
 import FormLabel, { formLabelClasses } from "@mui/joy/FormLabel";
 import IconButton from "@mui/joy/IconButton";
@@ -15,7 +13,6 @@ import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
-import { useCookies } from "react-cookie";
 import { CircularProgress } from "@mui/material";
 
 function ColorSchemeToggle(props) {
@@ -51,7 +48,6 @@ function ColorSchemeToggle(props) {
 
 export default function SignInSide(props) {
   const [message, setMessage] = React.useState();
-  const [cookies, setCookie, removeCookie] = useCookies(["token", "id"]);
   const [busy, setBusy] = React.useState(false);
   const [singupComplete, setSignupComplete] = React.useState(false);
 
