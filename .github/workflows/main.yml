@@ -25,6 +25,7 @@ jobs:
       - name: 🔨 Build Project
         run: |
           npm install
+          REACT_APP_API_URL=${{ vars.API_URL}}
           npm run build
 
       - name: List output files
