@@ -50,7 +50,7 @@ function ColorSchemeToggle(props) {
 export default function SignInSide(props) {
   const [message, setMessage] = React.useState();
   const [busy, setBusy] = React.useState(false);
-  const [signupComplete, setSignupComplete] = React.useState(false);
+  const [resetEmailSent, setResetEmailSent] = React.useState(false);
 
   return (
     <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
@@ -127,19 +127,18 @@ export default function SignInSide(props) {
             <Stack gap={4} sx={{ mb: 2 }}>
               <Stack gap={1}>
                 <Typography component="h1" level="h3">
-                  Sign up
+                  Reset Password
                 </Typography>
                 <Typography level="body-sm">
-                  Or{" "}
+                  Enter your email address and we will send you a link to reset your password. Or go{" "}
                   <Link component={RouterLink} level="title-sm" to="/dashboard/login">
-                    Log in
-                  </Link>{" "}
-                  if you already have an account.
+                    back to login
+                  </Link>
                 </Typography>
               </Stack>
             </Stack>
             <Stack gap={4} sx={{ mt: 2 }}>
-              {!signupComplete && (
+              {!resetEmailSent && (
                 <form
                   onSubmit={(event) => {
                     if (busy) return;
@@ -147,38 +146,30 @@ export default function SignInSide(props) {
                     event.preventDefault();
                     const formElements = event.currentTarget.elements;
                     const data = {
-                      username: formElements.username.value,
-                      password: formElements.password.value,
                       email: formElements.email.value,
                     };
                     //send data to server
-                    fetch(`${props.APIurl}accounts?action=newAccount`, {
+                    fetch(`${props.APIurl}accounts?action=resetPasswordRequest`, {
                       method: "POST",
                       headers: {
                         "Content-Type": "application/json",
                       },
-                      body: JSON.stringify({ username: data.username, password: data.password, email: data.email }),
+                      body: JSON.stringify({ email: data.email }),
                     }).then((response) => {
                       setBusy(false);
                       if (response.ok) {
-                        setSignupComplete(true);
+                        setResetEmailSent(true);
                       } else {
-                        setMessage({ type: "danger", text: "Username or email already in use." });
+                        response.text().then((text) => {
+                          setMessage({ type: "danger", text: text });
+                        });
                       }
                     });
                   }}>
-                  <FormControl required>
-                    {/* TODO: validation and restrictions for all this */}
-                    <FormLabel>Username</FormLabel>
-                    <Input type="username" name="username" />
-                  </FormControl>
+                  {/* TODO: validation and restrictions for all this */}
                   <FormControl required>
                     <FormLabel>Email Address</FormLabel>
                     <Input type="email" name="email" />
-                  </FormControl>
-                  <FormControl required>
-                    <FormLabel>Password</FormLabel>
-                    <Input type="password" name="password" />
                   </FormControl>
                   <Stack gap={4} sx={{ mt: 2 }}>
                     <Box
@@ -191,7 +182,7 @@ export default function SignInSide(props) {
                       <Button startDecorator={<CircularProgress />} fullWidth></Button>
                     ) : (
                       <Button type="submit" fullWidth>
-                        Sign up
+                        Reset Password
                       </Button>
                     )}
                   </Stack>
@@ -205,10 +196,10 @@ export default function SignInSide(props) {
                 </form>
               )}
 
-              {signupComplete && (
+              {resetEmailSent && (
                 <Stack gap={4} sx={{ mt: 2 }}>
                   <Typography level="body-sm" color="success">
-                    Sign up complete.
+                    Password reset email has been sent.
                   </Typography>
                   <Link component={RouterLink} level="title-sm" to="/dashboard/login">
                     Back to login
@@ -244,11 +235,7 @@ export default function SignInSide(props) {
           [theme.getColorSchemeSelector("dark")]: {
             backgroundImage: "url(https://images.unsplash.com/photo-1572072393749-3ca9c8ea0831?auto=format&w=1000&dpr=2)",
           },
-        })}>
-        <Typography level="title-lg">
-          Signing up for a FUNaccount lets you save your progress, access your information from any device, and has exclusive features.
-        </Typography>
-      </Box>
+        })}></Box>
     </CssVarsProvider>
   );
 }

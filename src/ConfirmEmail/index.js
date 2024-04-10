@@ -3,18 +3,16 @@ import { CssVarsProvider, useColorScheme } from "@mui/joy/styles";
 import GlobalStyles from "@mui/joy/GlobalStyles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import Box from "@mui/joy/Box";
-import Button from "@mui/joy/Button";
-import FormControl from "@mui/joy/FormControl";
-import FormLabel, { formLabelClasses } from "@mui/joy/FormLabel";
+import { formLabelClasses } from "@mui/joy/FormLabel";
 import IconButton from "@mui/joy/IconButton";
 import Link from "@mui/joy/Link";
 import { Link as RouterLink } from "react-router-dom";
-import Input from "@mui/joy/Input";
 import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import { CircularProgress } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 function ColorSchemeToggle(props) {
   const { onClick, ...other } = props;
@@ -50,7 +48,32 @@ function ColorSchemeToggle(props) {
 export default function SignInSide(props) {
   const [message, setMessage] = React.useState();
   const [busy, setBusy] = React.useState(false);
-  const [signupComplete, setSignupComplete] = React.useState(false);
+  const [confirmComplete, setConfirmComplete] = React.useState(false);
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const email = searchParams.get("email");
+  const code = searchParams.get("code");
+
+  React.useEffect(() => {
+    setBusy(true);
+    fetch(`${props.APIurl}accounts?action=confirmEmail`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email: email, code: code }),
+    }).then((response) => {
+      setBusy(false);
+      if (response.ok) {
+        setConfirmComplete(true);
+      } else {
+        response.text().then((text) => {
+          setMessage({ type: "danger", text: text });
+        });
+      }
+    });
+  }, [email, code, props.APIurl]);
 
   return (
     <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
@@ -127,88 +150,32 @@ export default function SignInSide(props) {
             <Stack gap={4} sx={{ mb: 2 }}>
               <Stack gap={1}>
                 <Typography component="h1" level="h3">
-                  Sign up
-                </Typography>
-                <Typography level="body-sm">
-                  Or{" "}
-                  <Link component={RouterLink} level="title-sm" to="/dashboard/login">
-                    Log in
-                  </Link>{" "}
-                  if you already have an account.
+                  Confirming Email
                 </Typography>
               </Stack>
             </Stack>
             <Stack gap={4} sx={{ mt: 2 }}>
-              {!signupComplete && (
-                <form
-                  onSubmit={(event) => {
-                    if (busy) return;
-                    setBusy(true);
-                    event.preventDefault();
-                    const formElements = event.currentTarget.elements;
-                    const data = {
-                      username: formElements.username.value,
-                      password: formElements.password.value,
-                      email: formElements.email.value,
-                    };
-                    //send data to server
-                    fetch(`${props.APIurl}accounts?action=newAccount`, {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({ username: data.username, password: data.password, email: data.email }),
-                    }).then((response) => {
-                      setBusy(false);
-                      if (response.ok) {
-                        setSignupComplete(true);
-                      } else {
-                        setMessage({ type: "danger", text: "Username or email already in use." });
-                      }
-                    });
-                  }}>
-                  <FormControl required>
-                    {/* TODO: validation and restrictions for all this */}
-                    <FormLabel>Username</FormLabel>
-                    <Input type="username" name="username" />
-                  </FormControl>
-                  <FormControl required>
-                    <FormLabel>Email Address</FormLabel>
-                    <Input type="email" name="email" />
-                  </FormControl>
-                  <FormControl required>
-                    <FormLabel>Password</FormLabel>
-                    <Input type="password" name="password" />
-                  </FormControl>
-                  <Stack gap={4} sx={{ mt: 2 }}>
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}></Box>
-                    {busy ? (
-                      <Button startDecorator={<CircularProgress />} fullWidth></Button>
-                    ) : (
-                      <Button type="submit" fullWidth>
-                        Sign up
-                      </Button>
-                    )}
-                  </Stack>
-                  {message && (
-                    <Stack>
-                      <Typography level="body-sm" color={message.type}>
-                        {message.text}
-                      </Typography>
-                    </Stack>
-                  )}
-                </form>
+              {busy && (
+                <Stack gap={4} sx={{ mt: 2 }}>
+                  <Typography level="body-sm" color="neutral">
+                    Confirming email...
+                  </Typography>
+                  <CircularProgress />
+                </Stack>
               )}
 
-              {signupComplete && (
+              {message && (
+                <Stack>
+                  <Typography level="body-sm" color={message.type}>
+                    Error: {message.text}
+                  </Typography>
+                </Stack>
+              )}
+
+              {confirmComplete && (
                 <Stack gap={4} sx={{ mt: 2 }}>
                   <Typography level="body-sm" color="success">
-                    Sign up complete.
+                    Email confirmed!
                   </Typography>
                   <Link component={RouterLink} level="title-sm" to="/dashboard/login">
                     Back to login
@@ -244,11 +211,7 @@ export default function SignInSide(props) {
           [theme.getColorSchemeSelector("dark")]: {
             backgroundImage: "url(https://images.unsplash.com/photo-1572072393749-3ca9c8ea0831?auto=format&w=1000&dpr=2)",
           },
-        })}>
-        <Typography level="title-lg">
-          Signing up for a FUNaccount lets you save your progress, access your information from any device, and has exclusive features.
-        </Typography>
-      </Box>
+        })}></Box>
     </CssVarsProvider>
   );
 }

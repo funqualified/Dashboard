@@ -15,6 +15,7 @@ import Stack from "@mui/joy/Stack";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import { CircularProgress } from "@mui/material";
+import { useLocation } from "react-router-dom";
 
 function ColorSchemeToggle(props) {
   const { onClick, ...other } = props;
@@ -50,7 +51,13 @@ function ColorSchemeToggle(props) {
 export default function SignInSide(props) {
   const [message, setMessage] = React.useState();
   const [busy, setBusy] = React.useState(false);
-  const [signupComplete, setSignupComplete] = React.useState(false);
+  const [resetComplete, setResetComplete] = React.useState(false);
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+
+  const email = searchParams.get("email");
+  const code = searchParams.get("code");
 
   return (
     <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
@@ -127,19 +134,19 @@ export default function SignInSide(props) {
             <Stack gap={4} sx={{ mb: 2 }}>
               <Stack gap={1}>
                 <Typography component="h1" level="h3">
-                  Sign up
+                  Update Password
                 </Typography>
                 <Typography level="body-sm">
-                  Or{" "}
+                  Or go back to{" "}
                   <Link component={RouterLink} level="title-sm" to="/dashboard/login">
                     Log in
-                  </Link>{" "}
-                  if you already have an account.
+                  </Link>
+                  .
                 </Typography>
               </Stack>
             </Stack>
             <Stack gap={4} sx={{ mt: 2 }}>
-              {!signupComplete && (
+              {!resetComplete && (
                 <form
                   onSubmit={(event) => {
                     if (busy) return;
@@ -147,37 +154,30 @@ export default function SignInSide(props) {
                     event.preventDefault();
                     const formElements = event.currentTarget.elements;
                     const data = {
-                      username: formElements.username.value,
                       password: formElements.password.value,
-                      email: formElements.email.value,
                     };
                     //send data to server
-                    fetch(`${props.APIurl}accounts?action=newAccount`, {
+                    fetch(`${props.APIurl}accounts?action=resetPassword`, {
                       method: "POST",
                       headers: {
                         "Content-Type": "application/json",
                       },
-                      body: JSON.stringify({ username: data.username, password: data.password, email: data.email }),
+                      body: JSON.stringify({ code: code, password: data.password, email: email }),
                     }).then((response) => {
                       setBusy(false);
                       if (response.ok) {
-                        setSignupComplete(true);
+                        setResetComplete(true);
                       } else {
-                        setMessage({ type: "danger", text: "Username or email already in use." });
+                        console.dir(response);
+                        response.text().then((text) => {
+                          setMessage({ type: "danger", text: text });
+                        });
                       }
                     });
                   }}>
+                  {/* TODO: validation and restrictions for all this */}
                   <FormControl required>
-                    {/* TODO: validation and restrictions for all this */}
-                    <FormLabel>Username</FormLabel>
-                    <Input type="username" name="username" />
-                  </FormControl>
-                  <FormControl required>
-                    <FormLabel>Email Address</FormLabel>
-                    <Input type="email" name="email" />
-                  </FormControl>
-                  <FormControl required>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>New Password</FormLabel>
                     <Input type="password" name="password" />
                   </FormControl>
                   <Stack gap={4} sx={{ mt: 2 }}>
@@ -191,7 +191,7 @@ export default function SignInSide(props) {
                       <Button startDecorator={<CircularProgress />} fullWidth></Button>
                     ) : (
                       <Button type="submit" fullWidth>
-                        Sign up
+                        Update Password
                       </Button>
                     )}
                   </Stack>
@@ -205,10 +205,10 @@ export default function SignInSide(props) {
                 </form>
               )}
 
-              {signupComplete && (
+              {resetComplete && (
                 <Stack gap={4} sx={{ mt: 2 }}>
                   <Typography level="body-sm" color="success">
-                    Sign up complete.
+                    Password updated.
                   </Typography>
                   <Link component={RouterLink} level="title-sm" to="/dashboard/login">
                     Back to login
@@ -244,11 +244,7 @@ export default function SignInSide(props) {
           [theme.getColorSchemeSelector("dark")]: {
             backgroundImage: "url(https://images.unsplash.com/photo-1572072393749-3ca9c8ea0831?auto=format&w=1000&dpr=2)",
           },
-        })}>
-        <Typography level="title-lg">
-          Signing up for a FUNaccount lets you save your progress, access your information from any device, and has exclusive features.
-        </Typography>
-      </Box>
+        })}></Box>
     </CssVarsProvider>
   );
 }

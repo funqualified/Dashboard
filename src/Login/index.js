@@ -8,13 +8,15 @@ import Checkbox from "@mui/joy/Checkbox";
 import FormControl from "@mui/joy/FormControl";
 import FormLabel, { formLabelClasses } from "@mui/joy/FormLabel";
 import IconButton from "@mui/joy/IconButton";
-import Link from "@mui/joy/Link";
 import Input from "@mui/joy/Input";
 import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import { useCookies } from "react-cookie";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import Link from "@mui/joy/Link";
+import { useEffect } from "react";
 
 function ColorSchemeToggle(props) {
   const { onClick, ...other } = props;
@@ -48,8 +50,15 @@ function ColorSchemeToggle(props) {
 }
 
 export default function SignInSide(props) {
+  const navigate = useNavigate();
   const [message, setMessage] = React.useState();
-  const [, setCookie] = useCookies(["token", "id"]);
+  const [cookies, setCookie] = useCookies(["token", "id"]);
+
+  useEffect(() => {
+    if (cookies.token && cookies.id) {
+      navigate("/dashboard/home");
+    }
+  }, [cookies, navigate]);
 
   return (
     <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
@@ -130,11 +139,7 @@ export default function SignInSide(props) {
                 </Typography>
                 <Typography level="body-sm">
                   Don't have a FUNaccount?{" "}
-                  <Link
-                    level="title-sm"
-                    onClick={() => {
-                      props.setScreen("signup");
-                    }}>
+                  <Link component={RouterLink} level="title-sm" to="/dashboard/signup">
                     Sign up!
                   </Link>
                 </Typography>
@@ -178,10 +183,6 @@ export default function SignInSide(props) {
                       response.json().then((data) => {
                         setCookie("token", data.token, { path: "/" });
                         setCookie("id", data.id, { path: "/" });
-
-                        setTimeout(() => {
-                          props.setScreen("dashboard");
-                        }, 1000);
                       });
                     } else {
                       setMessage({ type: "danger", text: "Invalid username or password" });
@@ -204,7 +205,7 @@ export default function SignInSide(props) {
                       alignItems: "center",
                     }}>
                     <Checkbox size="sm" label="Remember me" name="persistent" />
-                    <Link level="title-sm" href="#replace-with-a-link">
+                    <Link component={RouterLink} level="title-sm" to="/dashboard/resetPasswordRequest">
                       Forgot your password?
                     </Link>
                   </Box>
@@ -233,6 +234,8 @@ export default function SignInSide(props) {
         sx={(theme) => ({
           height: "100%",
           position: "fixed",
+          padding: "10%",
+          paddingTop: "20%",
           right: 0,
           top: 0,
           bottom: 0,
@@ -247,8 +250,9 @@ export default function SignInSide(props) {
           [theme.getColorSchemeSelector("dark")]: {
             backgroundImage: "url(https://images.unsplash.com/photo-1572072393749-3ca9c8ea0831?auto=format&w=1000&dpr=2)",
           },
-        })}
-      />
+        })}>
+        <Typography level="title-lg">All your saved games are here in your FUNaccount.</Typography>
+      </Box>
     </CssVarsProvider>
   );
 }
