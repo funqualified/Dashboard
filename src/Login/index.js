@@ -64,7 +64,7 @@ export default function SignInSide(props) {
         navigate("/dashboard/home");
       }
     }
-  }, [cookies, navigate]);
+  }, [cookies, navigate, redirectURL]);
 
   return (
     <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
