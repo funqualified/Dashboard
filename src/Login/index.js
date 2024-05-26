@@ -53,10 +53,16 @@ export default function SignInSide(props) {
   const navigate = useNavigate();
   const [message, setMessage] = React.useState();
   const [cookies, setCookie] = useCookies(["token", "id"]);
+  const redirectURL = new URLSearchParams(window.location.search).get("redirect");
 
   useEffect(() => {
     if (cookies.token && cookies.id) {
-      navigate("/dashboard/home");
+      if (redirectURL) {
+        console.log(redirectURL);
+        window.location.href = redirectURL;
+      } else {
+        navigate("/dashboard/home");
+      }
     }
   }, [cookies, navigate]);
 
