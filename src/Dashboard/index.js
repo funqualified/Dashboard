@@ -101,8 +101,8 @@ export default function Dashboard(props) {
               <ListItem>
                 <ListItemButton
                   onClick={() => {
-                    removeCookie("token");
-                    removeCookie("id");
+                    removeCookie("token", { path: "/" });
+                    removeCookie("id", { path: "/" });
                   }}
                   component={RouterLink}
                   to="/dashboard/login">
