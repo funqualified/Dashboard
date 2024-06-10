@@ -70,7 +70,7 @@ function Layout(props) {
     }
 
     if (props.userStatus !== "LoggedIn") {
-      navigate("/dashboard/login");
+      navigate("/dashboard/login" + (redirectURL ? `?redirect=${redirectURL}` : ""));
     }
   }, [props.userStatus, navigate, redirectURL]);
 
