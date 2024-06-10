@@ -14,9 +14,8 @@ import Stack from "@mui/joy/Stack";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import { useCookies } from "react-cookie";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import Link from "@mui/joy/Link";
-import { useEffect } from "react";
 
 function ColorSchemeToggle(props) {
   const { onClick, ...other } = props;
@@ -50,21 +49,10 @@ function ColorSchemeToggle(props) {
 }
 
 export default function SignInSide(props) {
-  const navigate = useNavigate();
   const [message, setMessage] = React.useState();
-  const [cookies, setCookie] = useCookies(["token", "id"]);
-  const redirectURL = new URLSearchParams(window.location.search).get("redirect");
+  const [, setCookie] = useCookies(["token", "id"]);
 
-  useEffect(() => {
-    if (cookies.token && cookies.id) {
-      if (redirectURL) {
-        console.log(redirectURL);
-        window.location.href = redirectURL;
-      } else {
-        navigate("/dashboard/home");
-      }
-    }
-  }, [cookies, navigate, redirectURL]);
+  //TODO: Set the message when the user is logged out for bad token
 
   return (
     <CssVarsProvider defaultMode="dark" disableTransitionOnChange>

@@ -20,8 +20,7 @@ import Link from "@mui/joy/Link";
 
 export default function Dashboard(props) {
   const [open, setOpen] = React.useState(false);
-  const [cookie, , removeCookie] = useCookies(["token", "id"]);
-  const [user, setUser] = React.useState({ username: "Loading", email: "Loading", id: "Loading" });
+  const [, , removeCookie] = useCookies(["token", "id"]);
 
   const toggleDrawer = (inOpen) => (event) => {
     if (event.type === "keydown" && (event.key === "Tab" || event.key === "Shift")) {
@@ -30,27 +29,6 @@ export default function Dashboard(props) {
 
     setOpen(inOpen);
   };
-
-  //If the user has a token, use it to get the user's information
-  React.useEffect(() => {
-    const token = cookie.token;
-    const id = cookie.id;
-    if (token) {
-      fetch(`${props.APIurl}accounts?action=getAccountInfo&token=${token}&id=${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          setUser(data);
-        })
-        .catch((error) => {
-          console.error("Error:", error);
-        });
-    }
-  }, [cookie, props.APIurl, setUser]);
 
   return (
     <CssVarsProvider defaultMode="dark" disableTransitionOnChange>
@@ -132,9 +110,9 @@ export default function Dashboard(props) {
         <Grid md={3} xs={3} sx={{ display: "flex", flexDirection: "column" }}>
           <Card>
             <Typography variant="h1">User Info</Typography>
-            <Typography variant="p">Name: {user.username} </Typography>
-            <Typography variant="p">Email: {user.email} </Typography>
-            <Typography variant="p">ID: {user.id} </Typography>
+            <Typography variant="p">Name: {props.user.username} </Typography>
+            <Typography variant="p">Email: {props.user.email} </Typography>
+            <Typography variant="p">ID: {props.user.id} </Typography>
           </Card>
         </Grid>
         <Grid md={3} xs={9} sx={{ display: "flex", flexDirection: "column" }}>
