@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 
 function App() {
   const APIurl = process.env.REACT_APP_API_URL;
-  const [cookie, setCookie, removeCookie] = useCookies(["token", "id"]);
+  const [cookie] = useCookies(["token", "id"]);
   const [user, setUser] = React.useState({ username: "Loading", email: "Loading", id: "Loading" });
   const [userStatus, setUserStatus] = React.useState("Loading");
 
