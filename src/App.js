@@ -68,6 +68,10 @@ function Layout(props) {
         navigate("/dashboard/home");
       }
     }
+
+    if (props.userStatus !== "LoggedIn") {
+      navigate("/dashboard/login");
+    }
   }, [props.userStatus, navigate, redirectURL]);
 
   return (
